@@ -8,7 +8,7 @@ const mongoUrl = process.env.MONGO_URL;
 const dbName = 'forgot-password';
 router.post('/api/register', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.json({ status: 'failed', msg: err });
+		if (err) res.json({ status: false, msg: 'internal error try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const emailcheck = await collection.findOne({ email: req.body.email });
@@ -16,7 +16,7 @@ router.post('/api/register', (req, res) => {
 		if (!emailcheck)
 			if (!namecheck)
 				bcrypt.hash(req.body.password, 10, async function(err, hash) {
-					if (err) res.status(501).json({ status: 'failed', msg: err });
+					if (err) res.json({ status: false, msg: 'internal error try again', err });
 					await collection.insertOne({
 						...req.body,
 						password: hash,
@@ -27,23 +27,24 @@ router.post('/api/register', (req, res) => {
 					await transporter.sendMail(activateOptions(req.body.email, data['_id']), (err, info) => {
 						if (err) {
 							collection.remove({ _id: data['_id'] });
-							res.json({ msg: 'Unable to send email', err });
-						} else res.status(201).json({ msg: 'successfully added and activation mail sent' });
+							res.json({ status: false, msg: 'Unable to send email', err });
+						} else
+							res.status(201).json({ status: true, msg: 'successfully added and activation mail sent' });
 					});
 				});
 			else {
 				client.close();
-				res.status(401).json({ msg: 'username is already taken' });
+				res.json({ status: false, msg: 'username is already taken' });
 			}
 		else {
 			client.close();
-			res.status(401).json({ msg: 'email already exists' });
+			res.json({ status: false, msg: 'email already exists' });
 		}
 	});
 });
 router.post('/api/login', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.status(502).json({ msg: 'refresh and try again' });
+		if (err) res.json({ status: false, msg: 'internal error, refresh and try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const hash = await collection.findOne({ username: req.body.username });
@@ -52,30 +53,31 @@ router.post('/api/login', (req, res) => {
 				bcrypt.compare(req.body.password, hash.password, async function(err, result) {
 					if (err) {
 						client.close();
-						res.status().json({ msg: 'invalid password' });
+						res.status().json({ status: false, msg: 'invalid password' });
 					}
 					const token = jwt.sign({ username: req.body.username }, process.env.JWT_SECRET_KEY);
 					await collection.updateOne({ username: req.body.username }, { $set: { token: token } });
 					client.close();
 					res.status(200).json({
+						status: true,
 						msg: 'successfully logged in',
-						data: { username: req.body.username, token: token }
+						out: { username: req.body.username, token: token }
 					});
 				});
 			else {
 				client.close();
-				res.status(401).json({ msg: 'activate your account' });
+				res.json({ status: false, msg: 'activate your account' });
 			}
 		else {
 			client.close();
-			res.status(400).json({ msg: "username doesn't exist" });
+			res.json({ status: false, msg: "username doesn't exist" });
 		}
 	});
 });
 
 router.get('/api/activate/:id', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.status(502).json({ msg: 'refresh and try again' });
+		if (err) res.json({ status: false, msg: 'refresh and try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const data = await collection.findOne({ _id: new objectId(req.params.id) });
@@ -83,70 +85,70 @@ router.get('/api/activate/:id', (req, res) => {
 			collection.updateOne({ _id: new objectId(req.params.id) }, { $set: { activated: true } }, (err, result) => {
 				if (err) {
 					client.close();
-					res.status(501).json({ msg: 'unable to activate account' });
+					res.json({ status: false, msg: 'unable to activate account', err });
 				}
-				res.status(200).json({ msg: 'account successfully activated' });
+				res.status(200).json({ status: true, msg: 'account successfully activated' });
 			});
 		else {
 			client.close();
 
-			res.status(501).json({ msg: 'unable to activate account' });
+			res.json({ status: false, msg: 'unable to activate account' });
 		}
 	});
 });
 router.post('/api/forgot', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.status(502).json({ msg: 'refresh and try again' });
+		if (err) res.json({ status: false, msg: 'refresh and try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const data = await collection.findOne({ email: req.body.email });
 		if (data) {
 			client.close();
 			await transporter.sendMail(forgotOptions(req.body.email, data['_id']), (err, info) => {
-				if (err) res.status(501).json({ msg: 'Unable to send email' });
+				if (err) res.json({ status: false, msg: 'Unable to send email', err });
 				else res.status(201).json({ msg: 'change password' });
 			});
 		} else {
 			client.close();
-			res.status(401).json({ msg: 'no such email is found' });
+			res.json({ status: false, msg: 'no such email is found' });
 		}
 	});
 });
 
 router.post('/api/changepass', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.status(502).json({ msg: 'refresh and try again' });
+		if (err) res.json({ status: false, msg: 'refresh and try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const data = await collection.findOne({ _id: new objectId(req.body.id) });
 		if (data) {
 			bcrypt.hash(req.body.password, 10, async function(err, hash) {
-				if (err) res.status(501).json({ status: 'failed', msg: err });
+				if (err) res.json({ status: false, msg: 'internal error, try again', err });
 				collection.updateOne(
 					{ _id: new objectId(req.body.id) },
 					{ $set: { password: hash } },
 					(err, result) => {
 						client.close();
-						if (err) res.status(501).json({ msg: 'unable to update account' });
-						res.status(200).json({ msg: 'password successfully updated' });
+						if (err) res.json({ status: false, msg: 'unable to update account', err });
+						res.status(200).json({ status: true, msg: 'password successfully updated' });
 					}
 				);
 			});
 		} else {
 			client.close();
-			res.status(401).json({ msg: 'no such id is found' });
+			res.json({ status: false, msg: 'no such id is found' });
 		}
 	});
 });
 
 router.get('/api/all', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
-		if (err) res.status(502).json({ msg: 'refresh and try again' });
+		if (err) res.json({ status: false, msg: 'refresh and try again', err });
 		const db = client.db(dbName);
 		const collection = db.collection('users');
 		const data = await collection.find({}).toArray();
 		client.close();
-		res.json({ data });
+		res.json({ status: true, out: data });
 	});
 });
 
