@@ -6,5 +6,5 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(router);
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 app.listen(port, (_) => console.log(`app is listening at port ${port}....`));
