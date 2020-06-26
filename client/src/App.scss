@@ -1,0 +1,88 @@
+.App {
+	.parent_register {
+		.container-fluid {
+			display: grid;
+			place-items: center;
+			min-height: 100vh;
+			background-color: rgb(1, 21, 22);
+		}
+		small {
+			display: block;
+			width: 100vw;
+			color: white;
+		}
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+	}
+	.parent_login {
+		.container-fluid {
+			display: grid;
+			place-items: center;
+			min-height: 100vh;
+			background-color: rgb(72, 73, 5);
+		}
+		small {
+			display: block;
+			width: 100vw;
+			color: white;
+		}
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+	}
+	.home_parent {
+		display: grid;
+		min-height: 100vh;
+		place-items: center;
+		background-color: rgba(3, 3, 37, 0.507);
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+	}
+	.parent_new_pwd {
+		display: grid;
+		place-items: center;
+		min-height: 100vh;
+		background-color: rgba(2, 26, 2, 0.63);
+		small {
+			display: block;
+			width: 100%;
+			color: white;
+		}
+		a {
+			text-decoration: none;
+			color: inherit;
+		}
+	}
+	.parent_forgot {
+		display: grid;
+		place-items: center;
+		min-height: 100vh;
+		background-color: rgb(133, 149, 173);
+	}
+	.parent-activate {
+		min-height: 100vh;
+		display: grid;
+		place-items: center;
+		background-color: rgb(162, 0, 255);
+		button {
+			padding: 2rem 5rem;
+			font-size: 2.4rem;
+			background-color: mediumseagreen;
+			color: white;
+			border: none;
+			border-radius: 1rem;
+			a {
+				text-decoration: none;
+				color: inherit;
+			}
+			&:active {
+				transform: scale(0.8);
+			}
+		}
+	}
+}
