@@ -106,7 +106,7 @@ router.post('/api/forgot', (req, res) => {
 			client.close();
 			await transporter.sendMail(forgotOptions(req.body.email, data['_id']), (err, info) => {
 				if (err) res.json({ status: false, msg: 'Unable to send email', err });
-				else res.status(201).json({ msg: 'change password' });
+				else res.status(201).json({ status: true, msg: 'change password' });
 			});
 		} else {
 			client.close();

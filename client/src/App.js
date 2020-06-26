@@ -16,10 +16,10 @@ function App() {
 					<Route path="/" exact component={Home} />
 					<Route path="/login" component={Login} />
 					<Route path="/register" component={Register} />
-					<Route path="/activate" component={Activate} />
+					<Route path="/activate/:id" exact component={Activate} />
 					<Route path="/chat" component={Chat} />
 					<Route path="/forgot" component={Forgot} />
-					<Route path="/passchange" component={Passchange} />
+					<Route path="/passchange/:id" exact component={Passchange} />
 				</Switch>
 			</div>
 		</Router>

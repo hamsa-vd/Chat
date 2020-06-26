@@ -1,30 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
 import { FiUser } from 'react-icons/fi';
-import { RiLoginCircleLine, RiLockPasswordLine } from 'react-icons/ri';
+import { RiLoginBoxLine, RiLockPasswordLine } from 'react-icons/ri';
 import { AiOutlineMail } from 'react-icons/ai';
+import { toast } from 'react-toastify';
+import ReactLoading from 'react-loading';
 function Register() {
-	const { register, handleSubmit, errors, formState } = useForm({ mode: 'onChange' });
+	const [ loading, setLoading ] = useState(false);
+	const { register, handleSubmit, errors } = useForm({ mode: 'onChange' });
 	const onSubmit = async (formdata) => {
-		console.log(formdata, formState.dirty, Object.keys(errors).length);
 		if (formdata.password === formdata.checkPassword && !Object.keys(errors).length) {
 			const body = formdata;
 			delete body.checkPassword;
 			console.log(body);
+			setLoading(true);
 			const data = await axios.post('https://hava-chat.herokuapp.com/api/register', body);
-			toast.success(data.data.msg);
-		} else console.log('haha');
+			setLoading(false);
+			if (data.data.status) toast.success(data.data.msg);
+			else toast.error(data.data.msg);
+		} else toast.info("password didn't match");
 	};
 	return (
 		<div>
+			{loading && <ReactLoading className="loading" type={'bubbles'} color={'#fff'} />}
 			<div className="parent_register">
 				<div className="container-fluid">
 					<div className="col-sm-10 col-lg-4">
 						<form className="row justify-content-center" onSubmit={handleSubmit(onSubmit)}>
 							<div className="input-group mb-3">
-								<small>all fields are required</small>
+								<small style={{ color: 'white' }}>all fields are required</small>
 								<div className="input-group-prepend">
 									<span className="input-group-text" id="basic-addon1">
 										<FiUser color="brown" className="mr-1" /> Username
@@ -38,6 +43,8 @@ function Register() {
 									aria-describedby="basic-addon1"
 									ref={register({ required: true })}
 								/>
+								{errors.username &&
+								errors.username.type === 'required' && <small>username is required</small>}
 							</div>
 							<div className="input-group mb-3">
 								<div className="input-group-prepend">
@@ -53,7 +60,7 @@ function Register() {
 									aria-describedby="basic-addon1"
 									ref={register({ required: true })}
 								/>
-								<small>should be a valid email</small>
+								{errors.email && errors.email.type === 'required' && <small>email is required</small>}
 							</div>
 							<div className="input-group mb-3">
 								<div className="input-group-prepend">
@@ -69,6 +76,8 @@ function Register() {
 									aria-describedby="basic-addon1"
 									ref={register({ required: true })}
 								/>
+								{errors.password &&
+								errors.password.type === 'required' && <small>password is required</small>}
 							</div>
 							<div className="input-group mb-3">
 								<div className="input-group-prepend">
@@ -84,10 +93,11 @@ function Register() {
 									aria-describedby="basic-addon1"
 									ref={register({ required: true })}
 								/>
-								<small>both passwords should match</small>
+								{errors.changePassword &&
+								errors.changePassword.type === 'required' && <small>changePassword is required</small>}
 							</div>
 							<button className="btn btn-outline-light" type="submit">
-								<RiLoginCircleLine size="1.2rem" /> Sign Up
+								<RiLoginBoxLine size="1.2rem" /> Sign Up
 							</button>
 						</form>
 					</div>
