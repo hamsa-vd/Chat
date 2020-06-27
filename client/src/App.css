@@ -22,7 +22,7 @@
   display: grid;
   place-items: center;
   min-height: 100vh;
-  background-color: #484905;
+  background-color: #8595ad;
 }
 
 .App .parent_login small {
@@ -73,7 +73,7 @@
   display: grid;
   place-items: center;
   min-height: 100vh;
-  background-color: #8595ad;
+  background-color: #484905;
 }
 
 .App .parent-activate {
