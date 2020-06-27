@@ -21,7 +21,7 @@ let activateOptions = (email, id) => ({
 	subject: 'Activate Account', // Subject line
 	text: 'click on the below button to activate your account', // plain text body
 	html: `<button style="border:none;border-radius:10px;padding:1rem 3rem;background-color:#8595ad;font-size:1rem">
-			<a href="http://localhost:3000/activate/${id}" 
+			<a href="https://hava-chat.netlify.app/activate/${id}" 
 			style="text-decoration:none;color:white">Activate</a></button>` // html body
 });
 
@@ -31,7 +31,7 @@ let forgotOptions = (email, id) => ({
 	subject: 'Change Password', // Subject line
 	text: 'click on the below button to change your account password', // plain text body
 	html: `<button style="border:none;border-radius:10px;padding:1rem 3rem;background-color:#8595ad;font-size:1rem">
-				<a href="http://localhost:3000/passchange/${id}" 
+				<a href="https://hava-chat.netlify.app/passchange/${id}" 
 				style="text-decoration:none;color:white">change password</a></button>` // html body
 });
 module.exports = { transporter, activateOptions, forgotOptions };
