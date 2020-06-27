@@ -17,8 +17,9 @@ function Login() {
 			const data = await Axios.post('https://hava-chat.herokuapp.com/api/login', formdata);
 			setLoading(false);
 			if (data.data.status) {
+				localStorage.setItem('token', data.data.out.token);
 				toast.success(data.data.msg);
-				history.push('/');
+				history.push('/chat');
 			} else toast.error(data.data.msg);
 		}
 	};

@@ -6,9 +6,11 @@ import { RiLoginBoxLine, RiLockPasswordLine } from 'react-icons/ri';
 import { AiOutlineMail } from 'react-icons/ai';
 import { toast } from 'react-toastify';
 import ReactLoading from 'react-loading';
+import { useHistory } from 'react-router-dom';
 function Register() {
 	const [ loading, setLoading ] = useState(false);
 	const { register, handleSubmit, errors } = useForm({ mode: 'onChange' });
+	const history = useHistory();
 	const onSubmit = async (formdata) => {
 		if (formdata.password === formdata.checkPassword && !Object.keys(errors).length) {
 			const body = formdata;
@@ -17,8 +19,10 @@ function Register() {
 			setLoading(true);
 			const data = await axios.post('https://hava-chat.herokuapp.com/api/register', body);
 			setLoading(false);
-			if (data.data.status) toast.success(data.data.msg);
-			else toast.error(data.data.msg);
+			if (data.data.status) {
+				toast.success(data.data.msg);
+				history.push('/login');
+			} else toast.error(data.data.msg);
 		} else toast.info("password didn't match");
 	};
 	return (

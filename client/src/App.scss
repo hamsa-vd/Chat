@@ -85,4 +85,124 @@
 			}
 		}
 	}
+	.parent-chat {
+		.top {
+			background-color: #aaf;
+			color: white;
+			box-shadow: 0 0 2rem -1rem black;
+			nav {
+				padding: 0.2rem 1rem;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				h4 {
+					text-transform: capitalize;
+				}
+				ul {
+					display: flex;
+					justify-content: space-between;
+					list-style-type: none;
+					li {
+						border-radius: 1rem;
+						font-size: 1.2rem;
+						margin-top: 0.5rem;
+						padding: 0.5rem 1rem;
+						user-select: none;
+						&:hover {
+							background-color: white;
+							color: #aaf;
+							cursor: pointer;
+						}
+						&:active {
+							box-shadow: 0px 0px 1rem -0.25rem black;
+						}
+					}
+				}
+			}
+		}
+		.choose {
+			margin-top: 1rem;
+			box-shadow: 0 0 2rem -1rem #aff;
+			& > div {
+				height: 85vh;
+				border-radius: 10px;
+				overflow: hidden;
+			}
+			.col-4 {
+				// background-color: lightcoral;
+				header {
+					border-radius: 5px;
+					background-color: whitesmoke;
+					nav {
+						align-items: center;
+						.link {
+							margin-top: 0.3rem;
+							text-align: center;
+							padding: 0.5rem 0px;
+							& + .link {
+								border-left: 1px solid rgb(71, 118, 150);
+							}
+							&:hover,
+							&.active {
+								background-color: rgb(71, 118, 150);
+								color: white;
+								cursor: pointer;
+								border-radius: 4px;
+							}
+						}
+					}
+				}
+			}
+			.col-8 {
+				background-color: whitesmoke;
+			}
+		}
+	}
+	.selected-parent {
+		padding: 0px;
+		header {
+			position: absolute;
+			background-color: rgb(187, 171, 206);
+			top: 0px;
+			right: 0px;
+			left: 0px;
+			padding: 0.5rem 3rem;
+			h4 {
+				font-size: 1.2rem;
+				color: white;
+			}
+		}
+		main {
+			overflow-y: scroll;
+			scrollbar-width: none;
+			&::-webkit-scrollbar {
+				width: 2px;
+				background-color: white;
+			}
+			&::-webkit-scrollbar-thumb {
+				background: lightseagreen;
+			}
+		}
+		footer {
+			position: absolute;
+			bottom: -15px;
+			background-color: whitesmoke;
+		}
+	}
+	.category-parent {
+		overflow-y: scroll;
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			width: 2px;
+			background-color: white;
+		}
+		&::-webkit-scrollbar-thumb {
+			background: lightseagreen;
+		}
+	}
+	.loading {
+		position: absolute;
+		top: 2rem;
+		right: 3rem;
+	}
 }
