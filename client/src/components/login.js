@@ -14,10 +14,12 @@ function Login() {
 	const onLogin = async (formdata) => {
 		if (!Object.keys(errors).length) {
 			setLoading(true);
-			const data = await Axios.post('https://hava-chat.herokuapp.com/api/login', formdata);
+			// const data = await Axios.post('https://hava-chat.herokuapp.com/api/login', formdata);
+			const data = await Axios.post('http://localhost:4200/api/login', formdata);
 			setLoading(false);
 			if (data.data.status) {
 				localStorage.setItem('token', data.data.out.token);
+				localStorage.setItem('username', data.data.out.username);
 				toast.success(data.data.msg);
 				history.push('/chat');
 			} else toast.error(data.data.msg);

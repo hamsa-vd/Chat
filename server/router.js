@@ -5,7 +5,7 @@ const { tokenAuth } = require('./middleware');
 const mongoClient = mongodb.MongoClient;
 const objectId = mongodb.ObjectID;
 const mongoUrl = process.env.MONGO_URL;
-const dbName = 'forgot-password';
+const dbName = 'Chat';
 router.post('/api/register', (req, res) => {
 	mongoClient.connect(mongoUrl, async (err, client) => {
 		if (err) res.json({ status: false, msg: 'internal error try again', err });
@@ -21,7 +21,11 @@ router.post('/api/register', (req, res) => {
 						...req.body,
 						password: hash,
 						token: '',
-						activated: false
+						activated: false,
+						socketId: '',
+						online: false,
+						rooms: [],
+						friends: []
 					});
 					const data = await collection.findOne({ email: req.body.email });
 					await transporter.sendMail(activateOptions(req.body.email, data['_id']), (err, info) => {

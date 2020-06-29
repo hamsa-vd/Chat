@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, NavLink, Redirect, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, NavLink, Redirect } from 'react-router-dom';
 import Selected from './selected';
 import Category from './catrgory';
 import Modal from 'react-modal';
+import { RiLogoutCircleLine } from 'react-icons/ri';
+import { AiOutlineEnter, AiOutlineUserAdd } from 'react-icons/ai';
+import { TiGroupOutline } from 'react-icons/ti';
+import { FaUserFriends } from 'react-icons/fa';
+import { MdCreate } from 'react-icons/md';
 import { toast } from 'react-toastify';
+import io from 'socket.io-client';
+let socket;
+const ENDPOINT = 'http://localhost:4200';
 Modal.setAppElement('#root');
 const modalStyles = {
 	overlay: {
-		backgroundColor: 'grey'
+		backgroundColor: 'grey',
+		zIndex: 1000
 	},
 	content: {
 		backgroundColor: 'whitesmoke',
@@ -17,17 +26,33 @@ const modalStyles = {
 		alignItems: 'center'
 	}
 };
+toast.info('choose rooms or friends');
 function Chat() {
 	const createRoom = () => {
+		alert(createdroom);
+		const body = { room: createdroom };
+		socket.emit('create room', body);
 		setCreateModal(false);
 	};
 	const joinRoom = () => {
+		const body = { room: joinedroom };
+		socket.emit('join room', body);
 		setJoinModal(false);
 	};
 	const addFriend = () => {
+		const body = { friend: addfriend };
+		socket.emit('add friend', body);
 		setAddModal(false);
 	};
-	const location = useLocation();
+	const logOut = () => {
+		setRedirect(true);
+		localStorage.removeItem('token');
+		localStorage.removeItem('username');
+	};
+
+	const [ createdroom, setCreatedroom ] = useState('');
+	const [ joinedroom, setJoinedroom ] = useState('');
+	const [ addfriend, setAddfriend ] = useState('');
 	const [ createModal, setCreateModal ] = useState(false);
 	const [ joinModal, setJoinModal ] = useState(false);
 	const [ addModal, setAddModal ] = useState(false);
@@ -35,27 +60,34 @@ function Chat() {
 
 	useEffect(() => {
 		if (!!!localStorage.getItem('token')) setRedirect(true);
-		if (location.pathname === '/chat') toast.info('choose room or friends');
+		else {
+			socket = io(ENDPOINT);
+			socket.send({ username: localStorage.getItem('username') });
+		}
+
+		return () => socket.close();
 	}, []);
+
 	return (
 		<div className="parent-chat">
 			{redirect && <Redirect to="/login" />}
 			<Modal isOpen={createModal} style={modalStyles} onRequestClose={() => setCreateModal(false)}>
-				<div class="input-group container row mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text btn-outline-dark" id="basic-addon1">
+				<div className="input-group container row mb-3">
+					<div className="input-group-prepend">
+						<span className="input-group-text btn-outline-dark" id="basic-addon1">
 							Room
 						</span>
 					</div>
 					<input
 						type="text"
-						class="form-control"
+						className="form-control"
 						placeholder="Name to create"
 						aria-label="Recipient's username"
 						aria-describedby="basic-addon2"
+						onChange={(e) => setCreatedroom(e.target.value)}
 					/>
-					<div class="input-group-append">
-						<button class="btn btn-info" type="button" onClick={createRoom}>
+					<div className="input-group-append">
+						<button className="btn btn-info" type="button" onClick={createRoom}>
 							create
 						</button>
 					</div>
@@ -65,21 +97,22 @@ function Chat() {
 				</button>
 			</Modal>
 			<Modal isOpen={joinModal} style={modalStyles} onRequestClose={() => setJoinModal(false)}>
-				<div class="input-group container row mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text btn-outline-dark" id="basic-addon1">
+				<div className="input-group container row mb-3">
+					<div className="input-group-prepend">
+						<span className="input-group-text btn-outline-dark" id="basic-addon1">
 							Room
 						</span>
 					</div>
 					<input
 						type="text"
-						class="form-control"
+						className="form-control"
 						placeholder="name to join"
 						aria-label="name to join"
 						aria-describedby="basic-addon2"
+						onChange={(e) => setJoinedroom(e.target.value)}
 					/>
-					<div class="input-group-append">
-						<button class="btn btn-info" type="button" onClick={joinRoom}>
+					<div className="input-group-append">
+						<button className="btn btn-info" type="button" onClick={joinRoom}>
 							join
 						</button>
 					</div>
@@ -89,21 +122,22 @@ function Chat() {
 				</button>
 			</Modal>
 			<Modal isOpen={addModal} style={modalStyles} onRequestClose={() => setAddModal(false)}>
-				<div class="input-group container row mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text btn-outline-dark" id="basic-addon1">
+				<div className="input-group container row mb-3">
+					<div className="input-group-prepend">
+						<span className="input-group-text btn-outline-dark" id="basic-addon1">
 							friend
 						</span>
 					</div>
 					<input
 						type="text"
-						class="form-control"
+						className="form-control"
 						placeholder="friend to add"
 						aria-label="Recipient's username"
 						aria-describedby="basic-addon2"
+						onChange={(e) => setAddfriend(e.target.value)}
 					/>
-					<div class="input-group-append">
-						<button class="btn btn-info" type="button" onClick={addFriend}>
+					<div className="input-group-append">
+						<button className="btn btn-info" type="button" onClick={addFriend}>
 							add
 						</button>
 					</div>
@@ -114,11 +148,22 @@ function Chat() {
 			</Modal>
 			<header className="top">
 				<nav>
-					<h4>Welcome Username</h4>
+					<h4>Welcome {!!localStorage.getItem('username') && localStorage.getItem('username')}</h4>
 					<ul>
-						<li onClick={() => setCreateModal(true)}>create room</li>
-						<li onClick={() => setJoinModal(true)}>join room</li>
-						<li onClick={() => setAddModal(true)}>add friend</li>
+						<li onClick={() => setCreateModal(true)}>
+							<MdCreate size={'1.2rem'} className="mr-1" />create room
+						</li>
+						<li onClick={() => setJoinModal(true)}>
+							<AiOutlineEnter size={'1.2rem'} className="mr-1" />join room
+						</li>
+						<li onClick={() => setAddModal(true)}>
+							<AiOutlineUserAdd size={'1.2rem'} className="mr-1" />add friend
+						</li>
+						<li>
+							<button className="btn btn-outline-danger" onClick={logOut}>
+								<RiLogoutCircleLine size={'1.2rem'} className="mr-1" />logout
+							</button>
+						</li>
 					</ul>
 				</nav>
 			</header>
@@ -134,7 +179,9 @@ function Chat() {
 									color={'black'}
 								>
 									{' '}
-									<h5>Rooms</h5>
+									<h5>
+										<TiGroupOutline className="mr-1" size={'1.3rem'} />Rooms
+									</h5>
 								</NavLink>
 								<NavLink
 									activeClassName="active"
@@ -142,14 +189,16 @@ function Chat() {
 									to="/chat/friend"
 									color={'black'}
 								>
-									<h5>Friends</h5>
+									<h5>
+										<FaUserFriends className="mr-1" size={'1.3rem'} />Friends
+									</h5>
 								</NavLink>
 							</nav>
 						</header>
-						<Route path="/chat/:category" component={Category} />
+						<Route path="/chat/:category" render={() => <Category socket={socket} />} />
 					</div>
 					<div className="col-8">
-						<Route path="/chat/:category/:name" exact component={Selected} />
+						<Route path="/chat/:category/:name" exact render={() => <Selected socket={socket} />} />
 					</div>
 				</div>
 			</Router>
